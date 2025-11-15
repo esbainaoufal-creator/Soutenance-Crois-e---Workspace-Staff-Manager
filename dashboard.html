@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkSphere - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <header>
+        <a href="index.html">
+            <div class="header-cont">
+                <h1>WorkSphere</h1>
+
+                <p>Gestion Visuelle du Personnel</p>
+            </div>
+        </a>
+        <hr>
+    </header>
+
+    <div class="dashboard-container">
+
+        <aside class="sidebar">
+            <div class="unassigned-section">
+                <h3>Personnel Non Assigné</h3>
+                <div class="staff-list" id="unassignedStaff">
+
+                </div>
+                <button class="add-worker-btn">➕ git add Employé</button>
+            </div>
+        </aside>
+
+
+        <main class="workspace">
+            <div class="floor-plan">
+
+                <div class="zone" data-zone="conference">
+                    <div class="zone-header">
+                        <h3>💼 Salle de conférence</h3>
+                        <span class="capacity">0/8</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="conference-staff">
+
+                    </div>
+                </div>
+
+
+                <div class="zone" data-zone="reception">
+                    <div class="zone-header">
+                        <h3>🚪 Réception</h3>
+                        <span class="capacity">0/4</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="reception-staff">
+
+                    </div>
+                </div>
+
+
+                <div class="zone" data-zone="server">
+                    <div class="zone-header">
+                        <h3>💻 Salle des serveurs</h3>
+                        <span class="capacity">0/6</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="server-staff">
+
+                    </div>
+                </div>
+
+
+                <div class="zone" data-zone="security">
+                    <div class="zone-header">
+                        <h3>🔒 Salle de sécurité</h3>
+                        <span class="capacity">0/4</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="security-staff">
+
+                    </div>
+                </div>
+
+
+                <div class="zone" data-zone="staff">
+                    <div class="zone-header">
+                        <h3>👥 Salle du personnel</h3>
+                        <span class="capacity">0/12</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="staff-room-staff">
+
+                    </div>
+                </div>
+
+
+                <div class="zone" data-zone="archive">
+                    <div class="zone-header">
+                        <h3>📁 Salle d'archives</h3>
+                        <span class="capacity">0/4</span>
+                        <button type="button" class="add-to-zone">+</button>
+                    </div>
+                    <div class="zone-content" id="archive-staff">
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <hr>
+        <div class="header-cont">
+            <h1>WorkSphere</h1>
+        </div>
+    </footer>
+</body>
+
+</html>
