@@ -149,6 +149,30 @@ footer hr {
     text-shadow: 0 0 10px rgb(225, 239, 98);
     transform: translateY(-5px);
     box-shadow: 0 5px 20px rgba(171, 214, 15, 0.8);
+    
+}
+.employee-card {
+    background-color: #393a3b;
+    border: 1px solid #d6f02d;
+    border-radius: 0.5em;
+    padding: 0.8em;
+    margin-bottom: 0.5em;
+    color: #a576d5;
+    text-shadow: none;
+    font-weight: 500;
+}
+.employee-role{
+    color: whitesmoke;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:x-small;
+}
+.employee-name{
+    font-size: large;
+}
+.employee-card:hover{
+    background-color: #000000;
+    text-shadow: none;
+    font-weight: 600;
 }
 
 

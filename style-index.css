@@ -204,6 +204,7 @@ main .para-1 p {
     text-align: center;
     box-shadow: 0 0 15px rgba(171, 214, 15, 0.589);
     flex-shrink: 0;
+    
 }
 
 .inner {
@@ -217,6 +218,6 @@ main .para-1 p {
 .getstarted:hover {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
     transform: translateY(-2px);
-
+    text-shadow: 0 0 10px rgb(225, 239, 98);
     transition: all 0.3s ease;
 }
