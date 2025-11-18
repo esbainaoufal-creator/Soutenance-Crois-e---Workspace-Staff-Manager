@@ -5,7 +5,6 @@ body {
     padding: 0;
 }
 
-
 header {
     text-align: center;
     margin-top: 0;
@@ -41,7 +40,6 @@ header hr {
     box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3), 0 0 8px rgba(111, 112, 113, 0.1);
 }
 
-
 footer {
     text-align: center;
     margin-top: 2em;
@@ -72,7 +70,6 @@ footer hr {
     box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3), 0 0 8px rgba(111, 112, 113, 0.1);
 }
 
-
 .dashboard-container {
     display: grid;
     grid-template-columns: 250px 1fr;
@@ -80,7 +77,6 @@ footer hr {
     gap: 2em;
     min-height: 70vh;
 }
-
 
 .dashboard-container .sidebar {
     text-align: center;
@@ -100,7 +96,6 @@ footer hr {
     color: #2c3e50;
     margin-bottom: 1em;
 }
-
 
 .add-worker-btn, .add-to-zone {
     background-color: #e6f637;
@@ -124,7 +119,6 @@ footer hr {
     padding: 5px 10px;
     font-size: 1.2em;
 }
-
 
 .floor-plan {
     display: grid;
@@ -151,6 +145,7 @@ footer hr {
     box-shadow: 0 5px 20px rgba(171, 214, 15, 0.8);
     
 }
+
 .employee-card {
     background-color: #393a3b;
     border: 1px solid #d6f02d;
@@ -161,20 +156,22 @@ footer hr {
     text-shadow: none;
     font-weight: 500;
 }
+
 .employee-role{
     color: whitesmoke;
     font-family: Arial, Helvetica, sans-serif;
     font-size:x-small;
 }
+
 .employee-name{
     font-size: large;
 }
+
 .employee-card:hover{
     background-color: #000000;
     text-shadow: none;
     font-weight: 600;
 }
-
 
 .zone-header {
     display: flex;
@@ -197,7 +194,6 @@ footer hr {
     color: #9778b7;
 }
 
-
 .zone-content {
     flex-grow: 1;
     min-height: 120px;
@@ -205,7 +201,6 @@ footer hr {
     border-radius: 8px;
     padding: 10px;
 }
-
 
 .staff-list {
     min-height: 100px;
