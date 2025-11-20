@@ -22,21 +22,19 @@
 
     <div class="dashboard-container">
 
- <aside class="sidebar">
-                    <div class="unassigned-section">
-                        <h3>Personnel Non Assigné</h3>
-                        <div class="staff-list" id="unassignedStaff">
-
-                        </div>
-                        <button class="add-worker-btn">➕ .git add Employé</button>
-                    </div>
-                </aside>
+        <aside class="sidebar">
+            <div class="unassigned-section">
+                <h3>Personnel Non Assigné</h3>
+                <div class="staff-list" id="unassignedStaff"></div>
+                <button class="add-worker-btn">➕ .git add Employé</button>
+            </div>
+        </aside>
 
 
         <main class="workspace">
             <div class="floor-plan">
 
-               
+
 
                 <div class="zone" data-zone="conference">
                     <div class="zone-header">
@@ -73,7 +71,7 @@
                     </div>
                 </div>
 
-                
+
 
                 <div class="zone" data-zone="security">
                     <div class="zone-header">
@@ -112,6 +110,47 @@
             </div>
         </main>
     </div>
+    <!-- Add Employee Modal -->
+<div class="modal" id="addEmployeeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>.git add Employé</h2>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <div class="form-group">
+                    <label>Rôle</label>
+                    <select id="employeeRole" required>
+                        <option value="">Choisir un rôle</option>
+                        <option value="manager">Manager</option>
+                        <option value="receptionist">Réceptionniste</option>
+                        <option value="technician">Technicien IT</option>
+                        <option value="security">Agent de sécurité</option>
+                        <option value="cleaner">Nettoyage</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="employeeEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="employeePhone" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" id="cancelAddEmployee">Annuler</button>
+            <button class="btn btn-success" id="saveEmployee">.git commit Employé</button>
+        </div>
+    </div>
+</div>
 
     <footer>
         <hr>

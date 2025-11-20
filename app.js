@@ -1,3 +1,8 @@
+// =============================================
+// WORKSPHERE - Gestion Visuelle du Personnel
+// =============================================
+
+// Données de l'application
 let appState = {
     staff: [
         {
@@ -31,37 +36,35 @@ let appState = {
     }
 };
 
-let zoneRestrictions = {
+// Restrictions par zone
+const zoneRestrictions = {
     reception: ["receptionist", "manager"],
     server: ["technician", "manager"],
     security: ["security", "manager"],
     archive: ["manager", "receptionist", "technician", "security", "other"]
 };
 
-// Load from localStorage
+
+
 function loadFromLocalStorage() {
     const savedData = localStorage.getItem('workSphereData');
     if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        appState = parsedData;
-        console.log("📂 Loaded saved data");
+        appState = JSON.parse(savedData);
+        console.log("📂 Données chargées");
     }
 }
 
-// Save to localStorage
 function saveToLocalStorage() {
     localStorage.setItem('workSphereData', JSON.stringify(appState));
-    console.log("💾 Data saved!");
+    console.log("💾 Données sauvegardées");
 }
 
-function initialiserApp() {
-    const staffListElement = document.getElementById('unassignedStaff');
-    const zoneButtons = document.querySelectorAll('.add-to-zone');
 
-    // Clear existing staff display
+
+function refreshEmployeeDisplay() {
+    const staffListElement = document.getElementById('unassignedStaff');
     staffListElement.innerHTML = '';
 
-    // Display unassigned employees
     appState.staff.forEach(employee => {
         if (employee.zone === null) {
             const employeeDiv = document.createElement('div');
@@ -73,8 +76,69 @@ function initialiserApp() {
             staffListElement.appendChild(employeeDiv);
         }
     });
+}
 
-    // Zone button handlers
+// =============================================
+// FONCTIONS MODAL
+// =============================================
+
+function setupModal() {
+    const modal = document.getElementById('addEmployeeModal');
+    const addButton = document.querySelector('.add-worker-btn');
+    const closeButton = document.querySelector('.close-modal');
+    const cancelButton = document.getElementById('cancelAddEmployee');
+    const saveButton = document.getElementById('saveEmployee');
+
+    // Ouvrir modal
+    addButton.addEventListener('click', () => {
+        modal.classList.add('active');
+    });
+
+    // Fermer modal
+    function closeModal() {
+        modal.classList.remove('active');
+        document.getElementById('employeeForm').reset();
+    }
+
+    closeButton.addEventListener('click', closeModal);
+    cancelButton.addEventListener('click', closeModal);
+
+    // Sauvegarder employé
+    saveButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('employeeName').value;
+        const role = document.getElementById('employeeRole').value;
+        const email = document.getElementById('employeeEmail').value;
+        const phone = document.getElementById('employeePhone').value;
+
+        if (name && role && email && phone) {
+            const newEmployee = {
+                id: Date.now(),
+                name: name,
+                role: role,
+                email: email,
+                phone: phone,
+                photo: "",
+                zone: null,
+                experiences: []
+            };
+            
+            appState.staff.push(newEmployee);
+            saveToLocalStorage();
+            closeModal();
+            refreshEmployeeDisplay();
+        } else {
+            alert("Veuillez remplir tous les champs!");
+        }
+    });
+}
+
+
+
+function setupZoneButtons() {
+    const zoneButtons = document.querySelectorAll('.add-to-zone');
+
     zoneButtons.forEach(button => {
         button.addEventListener('click', (event) => {
             const zoneElement = event.target.closest('.zone');
@@ -92,21 +156,22 @@ function initialiserApp() {
                 return false;
             });
 
-            console.log(`Available for ${zoneId}:`, availableEmployees);
-            // TODO: Show popup with availableEmployees
+            console.log(`Disponible pour ${zoneId}:`, availableEmployees);
+            // TODO: Ouvrir popup d'assignation
         });
     });
-
-    // Save button handler
-    const saveButton = document.querySelector('.add-worker-btn');
-    if (saveButton) {
-        saveButton.addEventListener('click', () => {
-            // TODO: Open add employee modal
-            console.log("Add employee clicked");
-        });
-    }
 }
 
 
-loadFromLocalStorage();
-initialiserApp();
+
+function initialiserApp() {
+    loadFromLocalStorage();
+    refreshEmployeeDisplay();
+    setupZoneButtons();
+    setupModal();
+}
+
+// Démarrer l'application
+document.addEventListener('DOMContentLoaded', function() {
+    initialiserApp();
+});
