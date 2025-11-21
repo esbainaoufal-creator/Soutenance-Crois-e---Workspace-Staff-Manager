@@ -1,3 +1,7 @@
+// =============================================
+// WORKSPHERE - Gestion Visuelle du Personnel
+// Application principale avec gestion d'état
+// =============================================
 
 // État global de l'application
 let appState = {
@@ -41,7 +45,14 @@ const zoneRestrictions = {
     archive: ["manager", "receptionist", "technician", "security", "other"]
 };
 
+// =============================================
+// GESTION DE LA PERSISTANCE DES DONNÉES
+// =============================================
 
+/**
+ * Charge les données depuis le localStorage
+ * Utilisé pour récupérer l'état précédent de l'application
+ */
 function loadFromLocalStorage() {
     const savedData = localStorage.getItem('workSphereData');
     if (savedData) {
@@ -54,7 +65,10 @@ function loadFromLocalStorage() {
     }
 }
 
-
+/**
+ * Sauvegarde l'état actuel dans le localStorage
+ * Permet de conserver les données entre les sessions
+ */
 function saveToLocalStorage() {
     try {
         localStorage.setItem('workSphereData', JSON.stringify(appState));
@@ -64,8 +78,14 @@ function saveToLocalStorage() {
     }
 }
 
+// =============================================
+// GESTION DE L'AFFICHAGE
+// =============================================
 
-
+/**
+ * Rafraîchit l'affichage du personnel non assigné
+ * Met à jour la liste des employés disponibles avec défilement
+ */
 function refreshEmployeeDisplay() {
     const staffListElement = document.getElementById('unassignedStaff');
     if (!staffListElement) {
@@ -85,18 +105,15 @@ function refreshEmployeeDisplay() {
 
     // Création des cartes pour chaque employé non assigné
     unassignedEmployees.forEach(employee => {
-        const employeeDiv = document.createElement('div');
-        employeeDiv.classList.add('employee-card');
-        employeeDiv.setAttribute('data-employee-id', employee.id);
-        employeeDiv.innerHTML = `
-            <div class="employee-name">${employee.name}</div>
-            <div class="employee-role">- ${getRoleDisplayName(employee.role)} -</div>
-        `;
+        const employeeDiv = createEmployeeCard(employee, 'unassigned');
         staffListElement.appendChild(employeeDiv);
     });
 }
 
-
+/**
+ * Met à jour l'affichage de toutes les zones
+ * Gère l'affectation des employés et l'affichage des capacités
+ */
 function refreshZoneDisplays() {
     // Réinitialisation des zones avant reassignement
     Object.keys(appState.zones).forEach(zoneId => {
@@ -123,12 +140,8 @@ function refreshZoneDisplays() {
             zoneStaff.forEach(employeeId => {
                 const employee = appState.staff.find(emp => emp.id === employeeId);
                 if (employee) {
-                    const employeeDiv = document.createElement('div');
-                    employeeDiv.classList.add('employee-card', 'assigned');
-                    employeeDiv.innerHTML = `
-                        <div class="employee-name">${employee.name}</div>
-                        <div class="employee-role">- ${getRoleDisplayName(employee.role)} -</div>
-                    `;
+                    const employeeDiv = createEmployeeCard(employee, 'assigned');
+                    employeeDiv.classList.add('assigned');
                     zoneElement.appendChild(employeeDiv);
                 }
             });
@@ -156,7 +169,130 @@ function getRoleDisplayName(role) {
     return roleNames[role] || role;
 }
 
+/**
+ * Crée une carte d'employé avec le bon bouton d'action
+ * @param {Object} employee - Données de l'employé
+ * @param {string} state - 'assigned' ou 'unassigned'
+ * @returns {HTMLElement} Élément HTML de la carte
+ */
+function createEmployeeCard(employee, state) {
+    const employeeDiv = document.createElement('div');
+    employeeDiv.classList.add('employee-card');
+    employeeDiv.setAttribute('data-employee-id', employee.id);
+    
+    let buttonHtml = '';
+    let buttonClass = '';
+    let buttonText = '';
+    let buttonTitle = '';
+    
+    if (state === 'unassigned') {
+        // Bouton de suppression pour les non-assignés
+        buttonClass = 'delete-employee-btn';
+        buttonText = '×';
+        buttonTitle = 'Supprimer l\'employé';
+    } else {
+        // Bouton de désassignation pour les assignés
+        buttonClass = 'unassign-employee-btn';
+        buttonText = '↶';
+        buttonTitle = 'Retirer de la zone';
+    }
+    
+    employeeDiv.innerHTML = `
+        <div class="employee-card-content">
+            <div class="employee-name">${employee.name}</div>
+            <div class="employee-role">- ${getRoleDisplayName(employee.role)} -</div>
+        </div>
+        <button class="${buttonClass}" title="${buttonTitle}">${buttonText}</button>
+    `;
+    
+    // Ajout de l'écouteur d'événement pour le bouton
+    const actionButton = employeeDiv.querySelector('button');
+    actionButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Empêche la propagation de l'événement
+        
+        if (state === 'unassigned') {
+            deleteEmployee(employee.id);
+        } else {
+            unassignEmployee(employee.id);
+        }
+    });
+    
+    return employeeDiv;
+}
 
+// =============================================
+// GESTION DES EMPLOYÉS
+// =============================================
+
+/**
+ * Supprime un employé de l'application (uniquement des non-assignés)
+ * @param {number} employeeId - ID de l'employé à supprimer
+ */
+function deleteEmployee(employeeId) {
+    // Confirmation avant suppression
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet employé ? Cette action est irréversible.")) {
+        return;
+    }
+    
+    const employee = appState.staff.find(emp => emp.id === employeeId);
+    if (!employee) {
+        console.error("❌ Employé non trouvé");
+        return;
+    }
+    
+    // Vérifier que l'employé n'est pas assigné
+    if (employee.zone !== null) {
+        alert("Impossible de supprimer un employé assigné à une zone. Veuillez d'abord le retirer de la zone.");
+        return;
+    }
+    
+    // Supprimer l'employé de la liste
+    appState.staff = appState.staff.filter(emp => emp.id !== employeeId);
+    
+    // Sauvegarder et rafraîchir l'affichage
+    saveToLocalStorage();
+    refreshEmployeeDisplay();
+    refreshZoneDisplays();
+    
+    console.log(`🗑️ Employé supprimé: ${employee.name}`);
+}
+
+/**
+ * Désassigne un employé d'une zone (le remet dans les non-assignés)
+ * @param {number} employeeId - ID de l'employé à désassigner
+ */
+function unassignEmployee(employeeId) {
+    const employee = appState.staff.find(emp => emp.id === employeeId);
+    if (!employee) {
+        console.error("❌ Employé non trouvé");
+        return;
+    }
+    
+    // Retirer l'employé de sa zone actuelle
+    if (employee.zone) {
+        const zone = appState.zones[employee.zone];
+        if (zone) {
+            zone.staff = zone.staff.filter(id => id !== employeeId);
+        }
+        employee.zone = null;
+    }
+    
+    // Sauvegarder et rafraîchir l'affichage
+    saveToLocalStorage();
+    refreshEmployeeDisplay();
+    refreshZoneDisplays();
+    
+    console.log(`↶ Employé désassigné: ${employee.name}`);
+}
+
+// =============================================
+// GESTION DES MODALS
+// =============================================
+
+/**
+ * Configure le modal d'ajout d'employé
+ * Gère l'ouverture, la fermeture et la sauvegarde
+ */
 function setupModal() {
     const modal = document.getElementById('addEmployeeModal');
     const addButton = document.querySelector('.add-worker-btn');
@@ -430,133 +566,3 @@ function initialiserApp() {
 document.addEventListener('DOMContentLoaded', function() {
     initialiserApp();
 });
-
-function refreshEmployeeDisplay() {
-    const staffListElement = document.getElementById('unassignedStaff');
-    if (!staffListElement) {
-        console.error("❌ Élément unassignedStaff non trouvé");
-        return;
-    }
-    
-    staffListElement.innerHTML = '';
-
-    const unassignedEmployees = appState.staff.filter(employee => employee.zone === null);
-    
-    // Message si aucun employé n'est disponible
-    if (unassignedEmployees.length === 0) {
-        staffListElement.innerHTML = '<div class="no-employees">Aucun employé non assigné</div>';
-        return;
-    }
-
-    // Création des cartes pour chaque employé non assigné
-    unassignedEmployees.forEach(employee => {
-        const employeeDiv = createEmployeeCard(employee);
-        staffListElement.appendChild(employeeDiv);
-    });
-}
-
-/**
- * Met à jour l'affichage de toutes les zones
- * Gère l'affectation des employés et l'affichage des capacités
- */
-function refreshZoneDisplays() {
-    // Réinitialisation des zones avant reassignement
-    Object.keys(appState.zones).forEach(zoneId => {
-        appState.zones[zoneId].staff = [];
-    });
-
-    // Réassignation des employés aux zones
-    appState.staff.forEach(employee => {
-        if (employee.zone && appState.zones[employee.zone]) {
-            appState.zones[employee.zone].staff.push(employee.id);
-        }
-    });
-
-    // Mise à jour visuelle de chaque zone
-    Object.keys(appState.zones).forEach(zoneId => {
-        const zoneElement = document.getElementById(`${zoneId}-staff`);
-        const capacityElement = document.querySelector(`[data-zone="${zoneId}"] .capacity`);
-        
-        if (zoneElement && capacityElement) {
-            zoneElement.innerHTML = '';
-            const zoneStaff = appState.zones[zoneId].staff;
-            
-            // Ajout des employés dans la zone
-            zoneStaff.forEach(employeeId => {
-                const employee = appState.staff.find(emp => emp.id === employeeId);
-                if (employee) {
-                    const employeeDiv = createEmployeeCard(employee);
-                    employeeDiv.classList.add('assigned');
-                    zoneElement.appendChild(employeeDiv);
-                }
-            });
-
-            // Mise à jour de l'affichage de capacité
-            capacityElement.textContent = `${zoneStaff.length}/${appState.zones[zoneId].capacity}`;
-        }
-    });
-}
-
-/**
- * Crée une carte d'employé avec bouton de suppression
- * @param {Object} employee - Données de l'employé
- * @returns {HTMLElement} Élément HTML de la carte
- */
-function createEmployeeCard(employee) {
-    const employeeDiv = document.createElement('div');
-    employeeDiv.classList.add('employee-card');
-    employeeDiv.setAttribute('data-employee-id', employee.id);
-    
-    employeeDiv.innerHTML = `
-        <div class="employee-card-content">
-            <div class="employee-name">${employee.name}</div>
-            <div class="employee-role">- ${getRoleDisplayName(employee.role)} -</div>
-        </div>
-        <button class="delete-employee-btn" title="Supprimer l'employé">.git rm</button>
-    `;
-    
-    // Ajout de l'écouteur d'événement pour la suppression
-    const deleteButton = employeeDiv.querySelector('.delete-employee-btn');
-    deleteButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Empêche la propagation de l'événement
-        deleteEmployee(employee.id);
-    });
-    
-    return employeeDiv;
-}
-
-/**
- * Supprime un employé de l'application
- * @param {number} employeeId - ID de l'employé à supprimer
- */
-function deleteEmployee(employeeId) {
-    // Confirmation avant suppression
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet employé ? Cette action est irréversible.")) {
-        return;
-    }
-    
-    const employee = appState.staff.find(emp => emp.id === employeeId);
-    if (!employee) {
-        console.error("❌ Employé non trouvé");
-        return;
-    }
-    
-    // Retirer l'employé de sa zone si assigné
-    if (employee.zone) {
-        const zone = appState.zones[employee.zone];
-        if (zone) {
-            zone.staff = zone.staff.filter(id => id !== employeeId);
-        }
-    }
-    
-    // Supprimer l'employé de la liste
-    appState.staff = appState.staff.filter(emp => emp.id !== employeeId);
-    
-    // Sauvegarder et rafraîchir l'affichage
-    saveToLocalStorage();
-    refreshEmployeeDisplay();
-    refreshZoneDisplays();
-    
-
-}
-
