@@ -1,0 +1,605 @@
+
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: rgb(190, 183, 183);
+    margin: 0;
+    padding: 0;
+}
+
+/* En-tête avec logo et titre */
+header {
+    text-align: center;
+    margin-top: 0;
+}
+
+header .header-cont {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: -1em;
+}
+
+header h1 {
+    margin-bottom: 0;
+}
+
+header p {
+    color: rgba(3, 6, 9, 0.324);
+    margin-bottom: 0;
+}
+
+header a {
+    text-decoration: none;
+    color: black;
+}
+
+/* Ligne de séparation décorative */
+header hr {
+    width: 70%;
+    margin: 25px auto;
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #393a3b, transparent);
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3), 0 0 8px rgba(111, 112, 113, 0.1);
+}
+
+/* Pied de page */
+footer {
+    text-align: center;
+    margin-top: 2em;
+}
+
+footer .header-cont {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+footer h1 {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+footer p {
+    color: rgba(3, 6, 9, 0.324);
+    margin-bottom: 0;
+}
+
+footer hr {
+    width: 70%;
+    margin: 25px auto;
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #393a3b, transparent);
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3), 0 0 8px rgba(111, 112, 113, 0.1);
+}
+
+/* Conteneur principal du dashboard */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    margin: 2em;
+    gap: 2em;
+    min-height: 70vh;
+}
+
+/* Sidebar pour le personnel non assigné */
+.dashboard-container .sidebar {
+    text-align: center;
+    background-color: #a889c7;
+    border-radius: 1em;
+    padding: 1.5em;
+    height: fit-content;
+}
+
+.sidebar:hover {
+    background-color: #9778b7;
+    box-shadow: 0 5px 20px rgba(171, 214, 15, 0.8);
+    text-shadow: 0 0 10px rgb(225, 239, 98);
+}
+
+.unassigned-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1em;
+}
+
+/* Boutons avec effet de survol */
+.add-worker-btn, .add-to-zone {
+    background-color: #e6f637;
+    color: #2c3e50;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1em;
+}
+
+.add-worker-btn:hover, .add-to-zone:hover {
+    background-color: #d6f02d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 246, 55, 0.4);
+}
+
+.add-to-zone {
+    padding: 5px 10px;
+    font-size: 1.2em;
+}
+
+/* Grille des zones de travail */
+.floor-plan {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2em;
+}
+
+/* Style des zones individuelles */
+.floor-plan .zone {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5em;
+    background-color: #393a3b;
+    min-height: 200px;
+    border-radius: 1em;
+    border: 2px solid #d6f02d;
+    box-shadow: 0 0 15px rgba(171, 214, 15, 0.589);
+    transition: all 0.3s ease;
+}
+
+.zone:hover {
+    background-color: #2c2c2c;
+    text-shadow: 0 0 10px rgb(225, 239, 98);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(171, 214, 15, 0.8);
+}
+
+/* Cartes des employés */
+.employee-card {
+    background-color: #393a3b;
+    border: 1px solid #d6f02d;
+    border-radius: 0.5em;
+    padding: 0.8em;
+    margin-bottom: 0.5em;
+    color: #a576d5;
+    text-shadow: none;
+    font-weight: 500;
+}
+
+.employee-role{
+    color: whitesmoke;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:x-small;
+}
+
+.employee-name{
+    font-size: large;
+}
+
+.employee-card:hover{
+    background-color: #000000;
+    text-shadow: none;
+    font-weight: 600;
+}
+
+/* En-tête de chaque zone */
+.zone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+    color: #a889c7;
+}
+
+.zone-header h3 {
+    margin: 0;
+    text-align: left;
+    color: #e6f637;
+    font-size: 1.2em;
+}
+
+.capacity {
+    font-size: large;
+    font-weight: 600;
+    color: #9778b7;
+}
+
+/* Contenu des zones avec bordure en pointillés */
+.zone-content {
+    flex-grow: 1;
+    min-height: 120px;
+    border: 1px dashed #a889c7;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.staff-list {
+    min-height: 100px;
+    border: 2px dashed #e6f637;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 1em;
+}
+
+/* Styles pour les modals */
+.modal {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: #393a3b;
+    border: 2px solid #d6f02d;
+    border-radius: 1em;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(214, 240, 45, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5em;
+    border-bottom: 1px solid #d6f02d;
+}
+
+.modal-header h2 {
+    color: #e6f637;
+    margin: 0;
+}
+
+.close-modal {
+    color: #e6f637;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 1.5em;
+}
+
+.form-group {
+    margin-bottom: 1em;
+}
+
+.form-group label {
+    display: block;
+    color: #e6f637;
+    margin-bottom: 0.5em;
+}
+
+.form-group input, .form-group select {
+    width: 90%;
+    padding: 0.8em;
+    border: 1px solid #a889c7;
+    border-radius: 0.5em;
+    background-color: #2c2c2c;
+    color: white;
+    font-size: 1em;
+}
+
+.modal-footer {
+    padding: 1.5em;
+    border-top: 1px solid #d6f02d;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1em;
+}
+
+.btn {
+    padding: 0.8em 1.5em;
+    border: none;
+    border-radius: 0.5em;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success {
+    background-color: #e6f637;
+    color: #2c3e50;
+}
+
+.btn-danger {
+    background-color: #a889c7;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 246, 55, 0.4);
+}
+
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        margin: 1.5em;
+        gap: 1.5em;
+    }
+    
+    .floor-plan {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5em;
+    }
+}
+
+/* Mobile - Reorganisation verticale */
+@media (max-width: 768px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        margin: 1em;
+        gap: 1em;
+    }
+    
+    .sidebar {
+        order: 1;
+    }
+    
+    .workspace {
+        order: 2;
+    }
+}
+
+/* Petits écrans mobiles */
+@media (max-width: 480px) {
+    .dashboard-container {
+        margin: 0.5em;
+        text-align: center;
+    }
+    
+    .floor-plan {
+        grid-template-columns: 1fr;
+        gap: 1em;
+    }
+    
+    .zone {
+        padding: 1em;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1em;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 320px) {
+    .zone-header {
+        flex-wrap: wrap;
+        gap: 0.5em;
+    }
+    
+    .zone-header h3 {
+        font-size: 1.1em;
+    }
+}
+
+/* Styles pour la sélection d'employés dans les modals */
+.employee-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+    margin-top: 1em;
+    text-align: center;
+}
+
+.employee-option {
+    background-color: #393a3b;
+    border: 1px solid #a889c7;
+    border-radius: 0.5em;
+    padding: 1em;
+    color: #e6f637;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.employee-option:hover {
+    background-color: #2c2c2c;
+    border-color: #e6f637;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 246, 55, 0.3);
+}
+
+.employee-option strong {
+    color: #a889c7;
+    display: block;
+    margin-bottom: 0.3em;
+    font-size: 1.1em;
+}
+
+.employee-option span {
+    color: #e6f637;
+    font-size: 0.9em;
+}
+
+/* Affichage de capacité dans les modals */
+.assignment-modal .modal-body p {
+    color: #e6f637;
+    font-weight: 600;
+    margin-bottom: 1em;
+    font-size: 1.1em;
+}
+
+/* Conteneurs avec défilement pour les listes d'employés */
+.staff-list {
+    min-height: 100px;
+    border: 2px dashed #e6f637;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 1em;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.zone-content {
+    flex-grow: 1;
+    min-height: 120px;
+    border: 1px dashed #a889c7;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Personnalisation des barres de défilement */
+.staff-list::-webkit-scrollbar,
+.zone-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.staff-list::-webkit-scrollbar-track,
+.zone-content::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 4px;
+}
+
+.staff-list::-webkit-scrollbar-thumb,
+.zone-content::-webkit-scrollbar-thumb {
+    background: #a889c7;
+    border-radius: 4px;
+}
+
+.staff-list::-webkit-scrollbar-thumb:hover,
+.zone-content::-webkit-scrollbar-thumb:hover {
+    background: #9778b7;
+}
+
+/* Support pour Firefox */
+.staff-list,
+.zone-content {
+    scrollbar-width: thin;
+    scrollbar-color: #a889c7 #2c2c2c;
+}
+.staff-list {
+    min-height: 100px;
+    border: 2px dashed #e6f637;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 1em;
+    max-height: 200px; /* Hauteur maximale avant défilement */
+    overflow-y: auto;  /* Activation du défilement vertical */
+}
+
+/* Personnalisation de la barre de défilement pour staff-list */
+.staff-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.staff-list::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 4px;
+}
+
+.staff-list::-webkit-scrollbar-thumb {
+    background: #a889c7;
+    border-radius: 4px;
+}
+
+.staff-list::-webkit-scrollbar-thumb:hover {
+    background: #9778b7;
+}
+
+/* Support pour Firefox */
+.staff-list {
+    scrollbar-width: thin;
+    scrollbar-color: #a889c7 #2c2c2c;
+}
+
+/* Message quand il n'y a pas d'employés */
+.no-employees {
+    color: #e6f637;
+    text-align: center;
+    padding: 2em;
+    font-style: italic;
+    border: 1px dashed #e6f637;
+    border-radius: 5px;
+}
+.employee-card {
+    background-color: #393a3b;
+    border: 1px solid #d6f02d;
+    border-radius: 0.5em;
+    padding: 0.8em;
+    margin-bottom: 0.5em;
+    color: #a576d5;
+    text-shadow: none;
+    font-weight: 500;
+    position: relative; /* For absolute positioning of delete button */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.employee-card-content {
+    flex: 1;
+}
+
+.employee-name {
+    font-size: large;
+    margin-bottom: 0.2em;
+}
+
+.employee-role {
+    color: whitesmoke;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: x-small;
+}
+
+/* Delete button styles */
+.delete-employee-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 10em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+.delete-employee-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Special styling for assigned employees in zones */
+.zone-content .employee-card {
+    padding-right: 0.8em; /* Make room for delete button */
+}
+
+.zone-content .delete-employee-btn {
+    opacity: 0.7;
+    font-size: 1em;
+    padding: 3px 6px;
+}
+
+.zone-content .delete-employee-btn:hover {
+    opacity: 1;
+}
+
+/* Hover effects */
+.employee-card:hover {
+    background-color: #000000;
+    text-shadow: none;
+    font-weight: 600;
+}
+
+.employee-card:hover .delete-employee-btn {
+    opacity: 1;
+}

@@ -1,16 +1,17 @@
-
+/* Variables CSS pour une gestion facile du responsive */
 :root {
     --mobile-padding: 1rem;
     --mobile-font-size: 1.2rem;
 }
 
-/* MEDIA QUERY POUR MOBILE */
+
+/* Tablettes et mobiles */
 @media (max-width: 768px) {
     body {
         padding: 0 var(--mobile-padding);
     }
     
-    
+    /* Adaptation de l'en-tête */
     header .header-cont {
         margin-top: 0.5em;
         gap: 0.5em;
@@ -29,35 +30,37 @@
         margin: 15px auto;
     }
     
-    
+    /* Adaptation du texte principal */
     main .para-1 {
         font-size: 1.5rem;
         margin: 1em 0;
     }
     
-    
+    /* Réorganisation du conteneur principal */
     .all-container {
         flex-direction: column;
         gap: 10px;
         margin: 1em 0;
     }
     
+    /* Adaptation des éléments décoratifs */
     .box-l, .box-r {
         height: 2px;
         max-width: 100%;
         width: 80%;
     }
     
+    /* Adaptation du bouton principal */
     .getstarted {
         width: 90%;
         max-width: 280px;
         padding: 1.2em;
         font-size: 1.3rem;
         margin: 1em auto;
-        order: -1; 
+        order: -1; /* Place le bouton en premier */
     }
     
-    
+    /* Adaptation du pied de page */
     footer hr {
         width: 90%;
         margin: 15px auto;
@@ -67,7 +70,7 @@
         font-size: 1.5rem;
     }
 }
-/* POUR TRÈS PETITS ÉCRANS  */
+
 @media (max-width: 375px) {
     header h1 {
         font-size: 1.8rem;
@@ -87,11 +90,13 @@
     }
 }
 
+
 body {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     background-color: rgb(190, 183, 183);
 }
 
+/* En-tête avec logo et slogan */
 header {
     text-align: center;
     margin-top: 0;
@@ -113,6 +118,7 @@ header p {
     margin-bottom: 0;
 }
 
+/* Ligne de séparation stylisée */
 header hr {
     width: 70%;
     margin: 25px auto;
@@ -123,25 +129,31 @@ header hr {
         0 2px 4px rgba(52, 152, 219, 0.3),
         0 0 8px rgba(111, 112, 113, 0.1);
 }
-footer{
-     text-align: center;
-     margin-top: 0;
+
+/* Pied de page */
+footer {
+    text-align: center;
+    margin-top: 0;
 }
-footer .header-cont{
+
+footer .header-cont {
     display: flex;
     flex-direction: column;
     gap: 0;
 }
-footer h1{
+
+footer h1 {
     margin-bottom: 0;
     margin-top: 0;
 }
-footer p{
-     color: rgba(3, 6, 9, 0.324);
+
+footer p {
+    color: rgba(3, 6, 9, 0.324);
     margin-bottom: 0;
 }
-footer hr{
-     width: 70%;
+
+footer hr {
+    width: 70%;
     margin: 25px auto;
     border: none;
     height: 2px;
@@ -151,11 +163,13 @@ footer hr{
         0 0 8px rgba(111, 112, 113, 0.1);
 }
 
+/* Contenu principal centré */
 main {
     text-align: center;
     margin-bottom: 0;
 }
 
+/* Section d'accroche avec style code */
 main .para-1 {
     display: flex;
     flex-direction: column;
@@ -169,6 +183,7 @@ main .para-1 p {
     text-shadow: 0 0 10px rgb(225, 239, 98);
 }
 
+/* Conteneur pour l'alignement horizontal */
 .all-container {
     display: flex;
     align-items: center;
@@ -176,9 +191,12 @@ main .para-1 p {
     gap: 20px;
     margin: 20px 0;
 }
-.all-container a{
+
+.all-container a {
     text-decoration: none;
 }
+
+/* Barres décoratives de chaque côté du bouton */
 .box-l,
 .box-r {
     height: 3em;
@@ -187,6 +205,7 @@ main .para-1 p {
     max-width: 40em;
 }
 
+/* Bouton d'appel à l'action principal */
 .getstarted {
     display: flex;
     flex-direction: column;
@@ -206,6 +225,7 @@ main .para-1 p {
     flex-shrink: 0;
 }
 
+/* Contenu interne du bouton */
 .inner {
     display: flex;
     justify-content: center;
@@ -214,9 +234,10 @@ main .para-1 p {
     gap: 0px;
 }
 
+/* Effets de survol pour l'interactivité */
 .getstarted:hover {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
     transform: translateY(-2px);
-
+    text-shadow: 0 0 10px rgb(225, 239, 98);
     transition: all 0.3s ease;
 }
