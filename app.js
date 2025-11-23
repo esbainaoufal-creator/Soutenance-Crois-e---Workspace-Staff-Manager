@@ -1,31 +1,7 @@
-// =============================================
-// WORKSPHERE - Gestion Visuelle du Personnel
-// Application principale avec gestion d'état
-// =============================================
-
-// État global de l'application
+// État de l'app
 let appState = {
     staff: [
-        {
-            id: 1,
-            name: "Joseph Stalin",
-            role: "manager",
-            photo: "",
-            email: "stalin@worksphere.com", 
-            phone: "01 23 45 67 89",
-            zone: null,
-            experiences: []
-        },
-        {
-            id: 2,
-            name: "Bruce Waine", 
-            role: "security",
-            photo: "",
-            email: "bruce@worksphere.com",
-            phone: "06 23 45 57 89", 
-            zone: null,
-            experiences: []
-        }
+        
     ],
     zones: {
         conference: { name: "Salle de conférence", capacity: 8, staff: [] },
@@ -37,394 +13,293 @@ let appState = {
     }
 };
 
-// Restrictions par type de rôle pour chaque zone
+// Restrictions
 const zoneRestrictions = {
     reception: ["receptionist", "manager"],
     server: ["technician", "manager"],
-    security: ["security", "manager"],
-    archive: ["manager", "receptionist", "technician", "security", "other"]
+    security: ["security", "manager"]
 };
 
-// =============================================
-// GESTION DE LA PERSISTANCE DES DONNÉES
-// =============================================
-
-/**
- * Charge les données depuis le localStorage
- * Utilisé pour récupérer l'état précédent de l'application
- */
+// Charger données
 function loadFromLocalStorage() {
-    const savedData = localStorage.getItem('workSphereData');
-    if (savedData) {
-        try {
-            appState = JSON.parse(savedData);
-            console.log("📂 Données chargées depuis le localStorage");
-        } catch (error) {
-            console.error("❌ Erreur lors du chargement des données:", error);
-        }
-    }
+    const saved = localStorage.getItem('workSphereData');
+    if (saved) appState = JSON.parse(saved);
 }
 
-/**
- * Sauvegarde l'état actuel dans le localStorage
- * Permet de conserver les données entre les sessions
- */
+// Sauvegarder
 function saveToLocalStorage() {
-    try {
-        localStorage.setItem('workSphereData', JSON.stringify(appState));
-        console.log("💾 Données sauvegardées dans le localStorage");
-    } catch (error) {
-        console.error("❌ Erreur lors de la sauvegarde:", error);
-    }
+    localStorage.setItem('workSphereData', JSON.stringify(appState));
 }
 
-// =============================================
-// GESTION DE L'AFFICHAGE
-// =============================================
-
-/**
- * Rafraîchit l'affichage du personnel non assigné
- * Met à jour la liste des employés disponibles avec défilement
- */
+// Afficher employés non assignés
 function refreshEmployeeDisplay() {
-    const staffListElement = document.getElementById('unassignedStaff');
-    if (!staffListElement) {
-        console.error("❌ Élément unassignedStaff non trouvé");
-        return;
-    }
+    const list = document.getElementById('unassignedStaff');
+    list.innerHTML = '';
     
-    staffListElement.innerHTML = '';
-
-    const unassignedEmployees = appState.staff.filter(employee => employee.zone === null);
+    const unassigned = appState.staff.filter(e => e.zone === null);
     
-    // Message si aucun employé n'est disponible
-    if (unassignedEmployees.length === 0) {
-        staffListElement.innerHTML = '<div class="no-employees">Aucun employé non assigné</div>';
+    if (unassigned.length === 0) {
+        list.innerHTML = '<div class="no-employees">Aucun employé non assigné</div>';
         return;
     }
 
-    // Création des cartes pour chaque employé non assigné
-    unassignedEmployees.forEach(employee => {
-        const employeeDiv = createEmployeeCard(employee, 'unassigned');
-        staffListElement.appendChild(employeeDiv);
+    unassigned.forEach(emp => {
+        list.appendChild(createEmployeeCard(emp, 'unassigned'));
     });
 }
 
-/**
- * Met à jour l'affichage de toutes les zones
- * Gère l'affectation des employés et l'affichage des capacités
- */
+// Afficher zones
 function refreshZoneDisplays() {
-    // Réinitialisation des zones avant reassignement
+    // Reset zones
     Object.keys(appState.zones).forEach(zoneId => {
         appState.zones[zoneId].staff = [];
     });
 
-    // Réassignation des employés aux zones
-    appState.staff.forEach(employee => {
-        if (employee.zone && appState.zones[employee.zone]) {
-            appState.zones[employee.zone].staff.push(employee.id);
+    // Assigner employés
+    appState.staff.forEach(emp => {
+        if (emp.zone && appState.zones[emp.zone]) {
+            appState.zones[emp.zone].staff.push(emp.id);
         }
     });
 
-    // Mise à jour visuelle de chaque zone
+    // Mettre à jour l'UI
     Object.keys(appState.zones).forEach(zoneId => {
-        const zoneElement = document.getElementById(`${zoneId}-staff`);
-        const capacityElement = document.querySelector(`[data-zone="${zoneId}"] .capacity`);
+        const zoneEl = document.getElementById(`${zoneId}-staff`);
+        const capacityEl = document.querySelector(`[data-zone="${zoneId}"] .capacity`);
         
-        if (zoneElement && capacityElement) {
-            zoneElement.innerHTML = '';
-            const zoneStaff = appState.zones[zoneId].staff;
+        if (zoneEl && capacityEl) {
+            zoneEl.innerHTML = '';
+            const staffIds = appState.zones[zoneId].staff;
             
-            // Ajout des employés dans la zone
-            zoneStaff.forEach(employeeId => {
-                const employee = appState.staff.find(emp => emp.id === employeeId);
-                if (employee) {
-                    const employeeDiv = createEmployeeCard(employee, 'assigned');
-                    employeeDiv.classList.add('assigned');
-                    zoneElement.appendChild(employeeDiv);
-                }
+            staffIds.forEach(id => {
+                const emp = appState.staff.find(e => e.id === id);
+                if (emp) zoneEl.appendChild(createEmployeeCard(emp, 'assigned'));
             });
 
-            // Mise à jour de l'affichage de capacité
-            capacityElement.textContent = `${zoneStaff.length}/${appState.zones[zoneId].capacity}`;
+            capacityEl.textContent = `${staffIds.length}/${appState.zones[zoneId].capacity}`;
         }
     });
 }
 
-/**
- * Convertit les codes de rôle en noms affichables
- * @param {string} role - Code du rôle
- * @returns {string} Nom affichable du rôle
- */
-function getRoleDisplayName(role) {
+// Créer carte employé
+function createEmployeeCard(emp, state) {
+    const div = document.createElement('div');
+    div.className = 'employee-card';
+    div.setAttribute('data-employee-id', emp.id);
+    div.setAttribute('draggable', 'true');
+    
     const roleNames = {
         'manager': 'Manager',
-        'receptionist': 'Réceptionniste',
+        'receptionist': 'Réceptionniste', 
         'technician': 'Technicien IT',
         'security': 'Agent de sécurité',
         'cleaner': 'Nettoyage',
         'other': 'Autre'
     };
-    return roleNames[role] || role;
-}
-
-/**
- * Crée une carte d'employé avec le bon bouton d'action
- * @param {Object} employee - Données de l'employé
- * @param {string} state - 'assigned' ou 'unassigned'
- * @returns {HTMLElement} Élément HTML de la carte
- */
-function createEmployeeCard(employee, state) {
-    const employeeDiv = document.createElement('div');
-    employeeDiv.classList.add('employee-card');
-    employeeDiv.setAttribute('data-employee-id', employee.id);
     
-    let buttonHtml = '';
-    let buttonClass = '';
-    let buttonText = '';
-    let buttonTitle = '';
+    const btnClass = state === 'unassigned' ? 'delete-employee-btn' : 'unassign-employee-btn';
+    const btnText = state === 'unassigned' ? '×' : '↶';
     
-    if (state === 'unassigned') {
-        // Bouton de suppression pour les non-assignés
-        buttonClass = 'delete-employee-btn';
-        buttonText = '×';
-        buttonTitle = 'Supprimer l\'employé';
-    } else {
-        // Bouton de désassignation pour les assignés
-        buttonClass = 'unassign-employee-btn';
-        buttonText = '↶';
-        buttonTitle = 'Retirer de la zone';
-    }
+    // Générer les initiales pour le placeholder
+    const initials = emp.name.split(' ').map(n => n[0]).join('').toUpperCase();
     
-    employeeDiv.innerHTML = `
-        <div class="employee-card-content">
-            <div class="employee-name">${employee.name}</div>
-            <div class="employee-role">- ${getRoleDisplayName(employee.role)} -</div>
+    // Image ou placeholder
+    const imageHtml = emp.photo ? 
+        `<img src="${emp.photo}" alt="${emp.name}" class="employee-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` :
+        '';
+    
+    const placeholderHtml = emp.photo ? 
+        `<div class="employee-image-placeholder" style="display: none;">${initials}</div>` :
+        `<div class="employee-image-placeholder">${initials}</div>`;
+    
+    div.innerHTML = `
+        <div class="employee-card-with-image">
+            ${imageHtml}
+            ${placeholderHtml}
+            <div class="employee-card-content">
+                <div class="employee-name">${emp.name}</div>
+                <div class="employee-role">- ${roleNames[emp.role]} -</div>
+                ${emp.experiences && emp.experiences.length > 0 ? 
+                    `<div class="employee-experience">${emp.experiences[0]}</div>` : ''}
+            </div>
         </div>
-        <button class="${buttonClass}" title="${buttonTitle}">${buttonText}</button>
+        <button class="${btnClass}">${btnText}</button>
     `;
     
-    // Ajout de l'écouteur d'événement pour le bouton
-    const actionButton = employeeDiv.querySelector('button');
-    actionButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Empêche la propagation de l'événement
-        
-        if (state === 'unassigned') {
-            deleteEmployee(employee.id);
-        } else {
-            unassignEmployee(employee.id);
+    // Clic sur la carte pour voir les infos
+    div.addEventListener('click', (e) => {
+        // Ne pas ouvrir le modal si on clique sur le bouton
+        if (!e.target.classList.contains(btnClass)) {
+            openEmployeeInfo(emp.id);
         }
     });
     
-    return employeeDiv;
-}
-
-// =============================================
-// GESTION DES EMPLOYÉS
-// =============================================
-
-/**
- * Supprime un employé de l'application (uniquement des non-assignés)
- * @param {number} employeeId - ID de l'employé à supprimer
- */
-function deleteEmployee(employeeId) {
-    // Confirmation avant suppression
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet employé ? Cette action est irréversible.")) {
-        return;
-    }
-    
-    const employee = appState.staff.find(emp => emp.id === employeeId);
-    if (!employee) {
-        console.error("❌ Employé non trouvé");
-        return;
-    }
-    
-    // Vérifier que l'employé n'est pas assigné
-    if (employee.zone !== null) {
-        alert("Impossible de supprimer un employé assigné à une zone. Veuillez d'abord le retirer de la zone.");
-        return;
-    }
-    
-    // Supprimer l'employé de la liste
-    appState.staff = appState.staff.filter(emp => emp.id !== employeeId);
-    
-    // Sauvegarder et rafraîchir l'affichage
-    saveToLocalStorage();
-    refreshEmployeeDisplay();
-    refreshZoneDisplays();
-    
-    console.log(`🗑️ Employé supprimé: ${employee.name}`);
-}
-
-/**
- * Désassigne un employé d'une zone (le remet dans les non-assignés)
- * @param {number} employeeId - ID de l'employé à désassigner
- */
-function unassignEmployee(employeeId) {
-    const employee = appState.staff.find(emp => emp.id === employeeId);
-    if (!employee) {
-        console.error("❌ Employé non trouvé");
-        return;
-    }
-    
-    // Retirer l'employé de sa zone actuelle
-    if (employee.zone) {
-        const zone = appState.zones[employee.zone];
-        if (zone) {
-            zone.staff = zone.staff.filter(id => id !== employeeId);
+    const btn = div.querySelector('button');
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        if (state === 'unassigned') {
+            deleteEmployee(emp.id);
+        } else {
+            unassignEmployee(emp.id);
         }
-        employee.zone = null;
+    };
+    
+    return div;
+}
+
+// Supprimer employé
+function deleteEmployee(id) {
+    if (!confirm("Supprimer cet employé ?")) return;
+    
+    const emp = appState.staff.find(e => e.id === id);
+    if (!emp) return;
+    
+    if (emp.zone !== null) {
+        alert("Désassigner d'abord de la zone !");
+        return;
     }
     
-    // Sauvegarder et rafraîchir l'affichage
+    appState.staff = appState.staff.filter(e => e.id !== id);
     saveToLocalStorage();
     refreshEmployeeDisplay();
     refreshZoneDisplays();
-    
-    console.log(`↶ Employé désassigné: ${employee.name}`);
 }
 
-// =============================================
-// GESTION DES MODALS
-// =============================================
+// Désassigner employé
+function unassignEmployee(id) {
+    const emp = appState.staff.find(e => e.id === id);
+    if (!emp) return;
+    
+    if (emp.zone) {
+        const zone = appState.zones[emp.zone];
+        if (zone) zone.staff = zone.staff.filter(sid => sid !== id);
+        emp.zone = null;
+    }
+    
+    saveToLocalStorage();
+    refreshEmployeeDisplay();
+    refreshZoneDisplays();
+}
 
-/**
- * Configure le modal d'ajout d'employé
- * Gère l'ouverture, la fermeture et la sauvegarde
- */
+// Gérer les expériences dans le modal
+function setupExperienceInput() {
+    const experiencesContainer = document.getElementById('experiencesContainer');
+    const addExperienceBtn = document.getElementById('addExperience');
+    
+    function addExperienceInput(value = '') {
+        const expDiv = document.createElement('div');
+        expDiv.className = 'experience-input';
+        expDiv.innerHTML = `
+            <input type="text" class="experience-field" placeholder="Compétence ou expérience" value="${value}">
+            <button type="button" class="remove-experience">×</button>
+        `;
+        
+        expDiv.querySelector('.remove-experience').onclick = () => {
+            expDiv.remove();
+        };
+        
+        experiencesContainer.appendChild(expDiv);
+    }
+    
+    addExperienceBtn.onclick = () => addExperienceInput();
+    
+    // Récupérer les expériences
+    window.getExperiences = () => {
+        const inputs = document.querySelectorAll('.experience-field');
+        const experiences = [];
+        inputs.forEach(input => {
+            if (input.value.trim()) {
+                experiences.push(input.value.trim());
+            }
+        });
+        return experiences;
+    };
+}
+
+// Modal ajout employé
 function setupModal() {
     const modal = document.getElementById('addEmployeeModal');
-    const addButton = document.querySelector('.add-worker-btn');
-    const closeButton = document.querySelector('.close-modal');
-    const cancelButton = document.getElementById('cancelAddEmployee');
-    const saveButton = document.getElementById('saveEmployee');
+    const addBtn = document.querySelector('.add-worker-btn');
+    const closeBtn = document.querySelector('.close-modal');
+    const cancelBtn = document.getElementById('cancelAddEmployee');
+    const saveBtn = document.getElementById('saveEmployee');
 
-    // Vérification que tous les éléments existent
-    if (!modal || !addButton || !closeButton || !cancelButton || !saveButton) {
-        console.error("❌ Éléments du modal non trouvés");
-        return;
-    }
-
-    // Ouverture du modal
-    addButton.addEventListener('click', () => {
-        console.log("📝 Ouverture du modal d'ajout d'employé");
-        modal.style.display = 'flex';
-        document.getElementById('employeeName').focus();
-    });
-
-    // Fermeture du modal
     function closeModal() {
         modal.style.display = 'none';
         document.getElementById('employeeForm').reset();
+        // Reset experiences
+        document.getElementById('experiencesContainer').innerHTML = '';
+        setupExperienceInput(); // Réinitialiser avec un champ vide
     }
 
-    closeButton.addEventListener('click', closeModal);
-    cancelButton.addEventListener('click', closeModal);
+    addBtn.onclick = () => {
+        modal.style.display = 'flex';
+        setupExperienceInput(); // Initialiser les champs d'expérience
+    };
 
-    // Fermeture en cliquant en dehors du modal
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
+    closeBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
 
-    // Fermeture avec la touche Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
-            closeModal();
-        }
-    });
+    modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+    };
 
-    // Sauvegarde d'un nouvel employé
-    saveButton.addEventListener('click', (e) => {
+    saveBtn.onclick = (e) => {
         e.preventDefault();
         
         const name = document.getElementById('employeeName').value.trim();
         const role = document.getElementById('employeeRole').value;
         const email = document.getElementById('employeeEmail').value.trim();
         const phone = document.getElementById('employeePhone').value.trim();
+        const photo = document.getElementById('employeePhoto').value.trim();
+        const experiences = window.getExperiences ? window.getExperiences() : [];
 
-        // Validation des champs
         if (name && role && email && phone) {
-            const newEmployee = {
-                id: Date.now(), // ID unique basé sur le timestamp
+            const newEmp = {
+                id: Date.now(),
                 name: name,
                 role: role,
                 email: email,
                 phone: phone,
-                photo: "",
-                zone: null,
-                experiences: []
+                photo: photo,
+                experiences: experiences,
+                zone: null
             };
             
-            appState.staff.push(newEmployee);
+            appState.staff.push(newEmp);
             saveToLocalStorage();
             closeModal();
             refreshEmployeeDisplay();
-            console.log("✅ Employé ajouté:", newEmployee);
         } else {
-            alert("Veuillez remplir tous les champs!");
+            alert("Veuillez remplir tous les champs obligatoires !");
         }
-    });
-
-    // Soumission du formulaire avec la touche Enter
-    document.getElementById('employeeForm').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            saveButton.click();
-        }
-    });
+    };
 }
 
-// =============================================
-// GESTION DES AFFECTATIONS AUX ZONES
-// =============================================
-
-/**
- * Configure les boutons d'ajout aux zones
- * Ajoute les écouteurs d'événements sur tous les boutons "+"
- */
+// Boutons zones
 function setupZoneButtons() {
-    const zoneButtons = document.querySelectorAll('.add-to-zone');
-
-    zoneButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const zoneElement = event.target.closest('.zone');
-            const zoneId = zoneElement.dataset.zone;
-            
-            openAssignmentModal(zoneId);
-        });
+    document.querySelectorAll('.add-to-zone').forEach(btn => {
+        btn.onclick = (e) => {
+            const zone = e.target.closest('.zone');
+            openAssignmentModal(zone.dataset.zone);
+        };
     });
 }
 
-/**
- * Ouvre un modal pour assigner un employé à une zone
- * @param {string} zoneId - Identifiant de la zone
- */
+// Modal assignation
 function openAssignmentModal(zoneId) {
     const allowedRoles = zoneRestrictions[zoneId];
     const zone = appState.zones[zoneId];
     
-    // Filtrage des employés disponibles selon les restrictions de rôle
-    const availableEmployees = appState.staff.filter(employee => {
-        if (employee.zone === null) {
-            if (allowedRoles) {
-                return allowedRoles.includes(employee.role);
-            } else {
-                return true; // Aucune restriction
-            }
-        }
-        return false;
+    const available = appState.staff.filter(emp => {
+        return emp.zone === null && (!allowedRoles || allowedRoles.includes(emp.role));
     });
 
-    // Message si aucun employé n'est disponible
-    if (availableEmployees.length === 0) {
-        alert("Aucun employé disponible pour cette zone!");
+    if (available.length === 0) {
+        alert("Aucun employé disponible !");
         return;
     }
 
-    // Création dynamique du modal d'assignation
     const modal = document.createElement('div');
     modal.className = 'modal active assignment-modal';
     modal.innerHTML = `
@@ -436,10 +311,12 @@ function openAssignmentModal(zoneId) {
             <div class="modal-body">
                 <p>📊 Capacité: ${zone.staff.length}/${zone.capacity}</p>
                 <div class="employee-selection">
-                    ${availableEmployees.map(employee => `
-                        <div class="employee-option" data-employee-id="${employee.id}">
-                            <strong>${employee.name}</strong>
-                            <span>-${getRoleDisplayName(employee.role)}-</span>
+                    ${available.map(emp => `
+                        <div class="employee-option" data-employee-id="${emp.id}">
+                            <strong>${emp.name}</strong>
+                            <span>-${getRoleDisplayName(emp.role)}-</span>
+                            ${emp.experiences && emp.experiences.length > 0 ? 
+                                `<small>${emp.experiences[0]}</small>` : ''}
                         </div>
                     `).join('')}
                 </div>
@@ -452,117 +329,172 @@ function openAssignmentModal(zoneId) {
 
     document.body.appendChild(modal);
 
-    // Gestionnaires d'événements pour le modal d'assignation
-    modal.querySelector('.close-modal').addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
+    modal.querySelector('.close-modal').onclick = () => document.body.removeChild(modal);
+    modal.querySelector('#cancelAssignment').onclick = () => document.body.removeChild(modal);
 
-    modal.querySelector('#cancelAssignment').addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+    modal.querySelectorAll('.employee-option').forEach(opt => {
+        opt.onclick = () => {
+            assignEmployeeToZone(parseInt(opt.dataset.employeeId), zoneId);
             document.body.removeChild(modal);
-        }
-    });
-
-    // Assignation de l'employé sélectionné
-    modal.querySelectorAll('.employee-option').forEach(option => {
-        option.addEventListener('click', () => {
-            const employeeId = parseInt(option.dataset.employeeId);
-            assignEmployeeToZone(employeeId, zoneId);
-            document.body.removeChild(modal);
-        });
+        };
     });
 }
 
-/**
- * Assign un employé à une zone spécifique
- * @param {number} employeeId - ID de l'employé
- * @param {string} zoneId - ID de la zone
- */
-function assignEmployeeToZone(employeeId, zoneId) {
-    const employee = appState.staff.find(emp => emp.id === employeeId);
+// Assigner à zone
+function assignEmployeeToZone(empId, zoneId) {
+    const emp = appState.staff.find(e => e.id === empId);
     const zone = appState.zones[zoneId];
 
-    if (!employee || !zone) {
-        console.error("❌ Employé ou zone non trouvé");
-        return;
-    }
+    if (!emp || !zone) return;
 
-    // Vérification de la capacité de la zone
     if (zone.staff.length >= zone.capacity) {
-        alert("Cette zone est pleine!");
+        alert("Zone pleine !");
         return;
     }
 
-    // Retrait de l'employé de son ancienne zone si nécessaire
-    if (employee.zone) {
-        const oldZone = appState.zones[employee.zone];
-        oldZone.staff = oldZone.staff.filter(id => id !== employeeId);
+    if (emp.zone) {
+        const oldZone = appState.zones[emp.zone];
+        oldZone.staff = oldZone.staff.filter(id => id !== empId);
     }
 
-    // Assignation à la nouvelle zone
-    employee.zone = zoneId;
-    zone.staff.push(employeeId);
+    emp.zone = zoneId;
+    zone.staff.push(empId);
 
     saveToLocalStorage();
     refreshEmployeeDisplay();
     refreshZoneDisplays();
-    
-    console.log(`✅ ${employee.name} assigné à ${zone.name}`);
 }
 
-// =============================================
-// COMPORTEMENT RESPONSIVE
-// =============================================
-
-/**
- * Gère l'adaptation de l'interface aux différentes tailles d'écran
- */
-function setupResponsiveBehavior() {
-    function handleResize() {
-        const sidebar = document.querySelector('.sidebar');
-        const workspace = document.querySelector('.workspace');
-        
-        if (window.innerWidth <= 768) {
-            // Adaptation pour mobile
-            document.body.classList.add('mobile-view');
-        } else {
-            document.body.classList.remove('mobile-view');
+// Glisser-déposer
+function setupDragAndDrop() {
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('employee-card')) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-employee-id'));
         }
-    }
-    
-    // Vérification initiale
-    handleResize();
-    
-    // Écoute des changements de taille
-    window.addEventListener('resize', handleResize);
+    });
+
+    document.addEventListener('dragend', (e) => {
+        if (e.target.classList.contains('employee-card')) {
+            e.target.classList.remove('dragging');
+        }
+    });
+
+    document.addEventListener('dragover', (e) => e.preventDefault());
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const zone = e.target.closest('.zone');
+        if (zone) {
+            const empId = parseInt(e.dataTransfer.getData('text/plain'));
+            assignEmployeeToZone(empId, zone.dataset.zone);
+        }
+    });
 }
 
-// =============================================
-// INITIALISATION DE L'APPLICATION
-// =============================================
+// Nom du rôle
+function getRoleDisplayName(role) {
+    const names = {
+        'manager': 'Manager',
+        'receptionist': 'Réceptionniste',
+        'technician': 'Technicien IT', 
+        'security': 'Agent de sécurité',
+        'cleaner': 'Nettoyage',
+        'other': 'Autre'
+    };
+    return names[role] || role;
+}
+// Ouvrir modal d'information employé
+function openEmployeeInfo(employeeId) {
+    const emp = appState.staff.find(e => e.id === employeeId);
+    if (!emp) return;
 
-/**
- * Point d'entrée principal - Initialise toute l'application
- */
-function initialiserApp() {
-    console.log("🚀 Initialisation de l'application WorkSphere");
+    const modal = document.getElementById('employeeInfoModal');
+    const roleNames = {
+        'manager': 'Manager',
+        'receptionist': 'Réceptionniste', 
+        'technician': 'Technicien IT',
+        'security': 'Agent de sécurité',
+        'cleaner': 'Nettoyage',
+        'other': 'Autre'
+    };
+
+    // Mettre à jour les informations
+    document.getElementById('employeeNameDisplay').textContent = emp.name;
+    document.getElementById('employeeRoleDisplay').textContent = roleNames[emp.role] || emp.role;
+    document.getElementById('employeeEmailDisplay').textContent = emp.email;
+    document.getElementById('employeePhoneDisplay').textContent = emp.phone;
     
-    // Séquence d'initialisation
+    // Zone assignée
+    const zoneDisplay = document.getElementById('employeeZoneDisplay');
+    if (emp.zone) {
+        const zone = appState.zones[emp.zone];
+        zoneDisplay.textContent = `📍 Assigné à: ${zone.name}`;
+        zoneDisplay.style.color = 'var(--accent-color)';
+    } else {
+        zoneDisplay.textContent = '🚫 Non assigné';
+        zoneDisplay.style.color = 'var(--warning)';
+    }
+
+    // Photo
+    const photoDisplay = document.getElementById('employeePhotoDisplay');
+    if (emp.photo) {
+        photoDisplay.src = emp.photo;
+        photoDisplay.style.display = 'block';
+    } else {
+        photoDisplay.style.display = 'none';
+    }
+
+    // Expériences
+    const experiencesList = document.getElementById('employeeExperiencesDisplay');
+    experiencesList.innerHTML = '';
+    
+    if (emp.experiences && emp.experiences.length > 0) {
+        emp.experiences.forEach(exp => {
+            const li = document.createElement('li');
+            li.textContent = exp;
+            experiencesList.appendChild(li);
+        });
+    } else {
+        const li = document.createElement('li');
+        li.textContent = 'Aucune expérience renseignée';
+        li.style.color = 'var(--primary-color)';
+        li.style.fontStyle = 'italic';
+        experiencesList.appendChild(li);
+    }
+
+    // Afficher le modal
+    modal.style.display = 'flex';
+}
+
+// Configurer le modal d'info
+function setupEmployeeInfoModal() {
+    const modal = document.getElementById('employeeInfoModal');
+    const closeBtn = document.querySelector('#employeeInfoModal .close-modal');
+    const closeInfoBtn = document.getElementById('closeEmployeeInfo');
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    closeBtn.onclick = closeModal;
+    closeInfoBtn.onclick = closeModal;
+
+    modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+    };
+}
+
+// Initialiser
+// Initialiser
+function init() {
     loadFromLocalStorage();
     refreshEmployeeDisplay();
     refreshZoneDisplays();
     setupZoneButtons();
     setupModal();
-    setupResponsiveBehavior();
-    
-    console.log("✅ Application initialisée avec succès");
+    setupEmployeeInfoModal(); // Ajouter cette ligne
+    setupDragAndDrop();
 }
 
-// Démarrage de l'application une fois le DOM chargé
-document.addEventListener('DOMContentLoaded', function() {
-    initialiserApp();
-});
+document.addEventListener('DOMContentLoaded', init);
